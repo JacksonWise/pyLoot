@@ -3,6 +3,24 @@ To exit program early: move mouse to very upper-left of screen (position 0,0)
 
 Must import pyautogui to function correctly
     - https://pyautogui.readthedocs.io/en/latest/install.html
+'''
+
+'''
+To use program:
+
+Open mini llama number selection (the magnifying glass after hovering over llama)
+
+Run pyLlama.py
+
+Move the mouse cursor over the right arrow (increase llamas to open)
+After a four second delay, the program will begin
+
+** Mouse must be positioned over the right arrow before program begins **
+
+'''
+
+'''
+If running from IDLE:
 
 Enter the following line into IDLE (without indent):
     exec(open('pyLlama.py').read())
@@ -11,29 +29,36 @@ Then, enter the number of mini llamas to open:
     manual(10)
 '''
 
+# Enter number of llamas to open if running directly from this script
+llamasToOpen = 5
+
 import pyautogui, sys, time
 
-# find screen resolution
-width, height = pyautogui.size()
-
-def test(numToOpen = 5):
-    while numToOpen > 0:
-        print(numToOpen)
-        numToOpen = numToOpen-1
-
-# user brings up first llama, program opens set amount after
-def manual(numToOpen = 5):
-    # move cursor to middle of screen
-    pyautogui.moveTo(width/2, height/2, duration = 0.5)
+# user brings up the mini llama selection screen
+def manual(numToOpen = llamasToOpen):
+    time.sleep(4)
+    
+    # move cursor to right arrow (increase llamas), program does the rest
+    pos = pyautogui.position()
+    increaseLoot()
     
     while numToOpen > 0:
+        pyautogui.moveTo(pos)
         firstWhack()
+        pyautogui.moveTo(pos)
         secondWhack()        
         numToOpen = numToOpen - 1
 
+# clicks on right arrow, increasing llamas to open
+def increaseLoot():
+    clicksLeft = numToOpen
+    while clicksLeft > 0:
+        pyautogui.click()
+        time.sleep(0.05)
+        clicksLeft = clicksLeft - 1
+
 # first whack in case the llama goes silver
 def firstWhack():
-    pyautogui.moveTo(width/2, height/2)
     pyautogui.click()
     time.sleep(0.2)
     pyautogui.mouseDown()
@@ -42,7 +67,6 @@ def firstWhack():
 
 # second Whack and speeds up waiting process
 def secondWhack():
-    pyautogui.moveTo(width/2, height/2)
     pyautogui.click()
     time.sleep(0.2)
     pyautogui.mouseDown()
