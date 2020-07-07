@@ -1,0 +1,2 @@
+# pyLoot
+ Auto lootbox openers
