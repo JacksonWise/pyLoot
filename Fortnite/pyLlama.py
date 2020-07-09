@@ -75,7 +75,23 @@ def secondWhack():
 
 # TO-DO: add image recognition, make the whole thing automatic
 def auto():
-    pass
+    findMiniLlama()
 
+def findMiniLlama():
+    # move to llama
+    coords = pyautogui.locateOnScreen('c:\\python\\python38\\pics\\miniLlama.png'))
+    pyautogui.moveTo(coords[0], coords[1], duration=.5)
 
-    
+    # move to magnifying lens
+    coords = pyautogui.locateOnScreen('c:\\python\\python38\\pics\\magLens.png'))
+    pyautogui.moveTo(coords[0], coords[1], duration=.5)
+    pyautogui.click(coords[0], coords[1])
+
+    # move to right arrow and click on it set number of times
+    coords = pyautogui.locateOnScreen('c:\\python\\python38\\pics\\rightArrow.png'))
+    pyautogui.moveTo(coords[0], coords[1], duration=.5)
+
+    numClicks = numToOpen
+    while numClicks > 0:
+        pyautogui.click(coords[0], coords[1])
+        numClicks = numClicks - 1
