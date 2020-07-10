@@ -79,19 +79,30 @@ def auto():
 
 def findMiniLlama():
     # move to llama
-    coords = pyautogui.locateOnScreen('c:\\python\\python38\\pics\\miniLlama.png'))
-    pyautogui.moveTo(coords[0], coords[1], duration=.5)
+    coords = findPic('c:\\python\\python38\\pics\\llamaMini.png', 0.5)
 
     # move to magnifying lens
-    coords = pyautogui.locateOnScreen('c:\\python\\python38\\pics\\magLens.png'))
-    pyautogui.moveTo(coords[0], coords[1], duration=.5)
+    coords = findPic('c:\\python\\python38\\pics\\llamaLens.png', 0.5)
     pyautogui.click(coords[0], coords[1])
 
     # move to right arrow and click on it set number of times
-    coords = pyautogui.locateOnScreen('c:\\python\\python38\\pics\\rightArrow.png'))
-    pyautogui.moveTo(coords[0], coords[1], duration=.5)
+    coords = findPic('c:\\python\\python38\\pics\\llamaRightArrow.png', 0.5)
 
     numClicks = numToOpen
     while numClicks > 0:
         pyautogui.click(coords[0], coords[1])
+        time.sleep(0.2)
         numClicks = numClicks - 1
+
+    # click on "open" button
+    coords = findPicCoords('c:\\python\\python38\\pics\\llamaOpen.png', 0.5)
+    pyautogui.click(coords[0], coords[1])
+
+# move to pic specified
+def findPic(image, time):
+    coords = pyautogui.locateOnScreen(image, time)
+    pyautogui.moveTo(coords[0], coords[1], time)
+    return coords
+
+
+    
