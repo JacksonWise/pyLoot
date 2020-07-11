@@ -30,34 +30,55 @@ Then, enter the number of mini llamas to open:
 '''
 
 # Enter number of llamas to open if running directly from this script
-llamasToOpen = 5
+llamasToOpen = 4
 
-import pyautogui, sys, time
+import pyautogui, sys, os, time
+
+# 'pics' folder placed in script parent folder
+picMiniLlama = os.path.join(picLocation + '\\miniLlama_2560x1440.png')
+picMiniLens = os.path.join(picLocation + '\\miniLlamaLens_2560x1440.png')
+picArrow = os.path.join(picLocation + '\\rightArrow_2560_1440.png')
+picClaim = os.path.join(picLocation + '\\claim_2560x1440.png')
+
+print(picLocation)
 
 # user brings up the mini llama selection screen
-def manual(numToOpen = llamasToOpen):
+#def manual(numToOpen = llamasToOpen):
+def manual(numToOpen=llamasToOpen):
+    global llamasToOpen
+    llamasToOpen = numToOpen
+
     time.sleep(4)
     
     # move cursor to right arrow (increase llamas), program does the rest
     pos = pyautogui.position()
-    increaseLoot()
+    increaseLoot(pos)
+    hitLlamas()
     
-    while numToOpen > 0:
-        pyautogui.moveTo(pos)
-        firstWhack()
-        pyautogui.moveTo(pos)
-        secondWhack()        
-        numToOpen = numToOpen - 1
 
 # clicks on right arrow, increasing llamas to open
-def increaseLoot():
-    clicksLeft = numToOpen
+def increaseLoot(pos):
+    clicksLeft = llamasToOpen
     while clicksLeft > 0:
         pyautogui.click()
-        time.sleep(0.05)
+        time.sleep(0.01)
         clicksLeft = clicksLeft - 1
 
-# first whack in case the llama goes silver
+def hitLlamas():
+    # set mouse to center of screen
+    width, height = pyautogui.size()
+    midX = width/2
+    midY = height/2
+
+    # move to center of screen, hit llama
+    while llamasToOpen > 0:
+        pyautogui.moveTo(midX, midY)
+        firstWhack()
+        pyautogui.moveTo(midX, midY)
+        secondWhack()        
+        llamasToOpen = llamasToOpen - 1
+
+# first of two whacks in case the llama goes silver
 def firstWhack():
     pyautogui.click()
     time.sleep(0.2)
@@ -74,34 +95,33 @@ def secondWhack():
     pyautogui.mouseUp()
 
 # TO-DO: add image recognition, make the whole thing automatic
-def auto():
-    findMiniLlama()
+def auto(numToOpen = llamasToOpen):
+    global llamasToOpen
+    llamasToOpen = numToOpen
 
-def findMiniLlama():
-    # move to llama
-    coords = findPic('c:\\python\\python38\\pics\\llamaMini.png', 0.5)
-
-    # move to magnifying lens
-    coords = findPic('c:\\python\\python38\\pics\\llamaLens.png', 0.5)
+    # move to llama, then lens
+    coords = findPic(picMiniLlama, 0.5)
+    coords = findPic(picMiniLens, 0.5)
     pyautogui.click(coords[0], coords[1])
 
-    # move to right arrow and click on it set number of times
-    coords = findPic('c:\\python\\python38\\pics\\llamaRightArrow.png', 0.5)
-
-    numClicks = numToOpen
-    while numClicks > 0:
-        pyautogui.click(coords[0], coords[1])
-        time.sleep(0.2)
-        numClicks = numClicks - 1
+    # find and click on increase arrow
+    coords = findPic(picArrow, 0.5)
+    increaseLoot(coords)
 
     # click on "open" button
-    coords = findPicCoords('c:\\python\\python38\\pics\\llamaOpen.png', 0.5)
+    coords = findPic(picClaim, 0.5)
+
+    '''
     pyautogui.click(coords[0], coords[1])
 
+    hitLlamas(coords)
+    '''
+
 # move to pic specified
-def findPic(image, time):
-    coords = pyautogui.locateOnScreen(image, time)
-    pyautogui.moveTo(coords[0], coords[1], time)
+def findPic(image, moveTime):
+    time.sleep(0.5)
+    coords = pyautogui.locateCenterOnScreen(image)
+    pyautogui.moveTo(coords[0], coords[1], moveTime)
     return coords
 
 
