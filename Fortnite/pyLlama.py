@@ -34,12 +34,39 @@ llamasToOpen = 4
 
 import pyautogui, sys, os, time
 
-# 'pics' folder placed in script parent folder
-picMiniLlama = os.path.join(picLocation + '\\miniLlama_2560x1440.png')
-picMiniLens = os.path.join(picLocation + '\\miniLlamaLens_2560x1440.png')
-picArrow = os.path.join(picLocation + '\\rightArrow_2560_1440.png')
-picClaim = os.path.join(picLocation + '\\claim_2560x1440.png')
+# resolution of user monitor
+resX = [2560, 1920, 1280]
+resY = [1440, 1080, 720]
 
+width = height = None
+
+picMiniLlama = picMiniLens =  picArrow =  picClaim = None
+
+def getResolution():
+    global width, height, resX, resY
+    
+    width, height = pyautogui.size()
+
+    for sizes in resX:
+        if resX[sizes] == width and resY[sizes] == height:
+            width = height = sizes
+            return
+
+    # resolution not found, exit program
+    print('Resolution not supported')
+    sys.exit()
+
+def setPics():
+    global picMiniLlama, picMiniLens, picArrow, picClaim, width, height, resX, resY
+
+    # location of pics, 'pics' folder placed in script parent folder
+    picLocation = os.path.join(os.getcwd() + '\\pics')
+
+    picMiniLlama = os.path.join(picLocation + '\\miniLlama_' + resX[width] + 'x' + resY[height] + '.png')
+    picMiniLens = os.path.join(picLocation + '\\miniLlamaLens_' + resX[width] + 'x' + resY[height] + '.png')
+    picArrow = os.path.join(picLocation + '\\rightArrow_' + resX[width] + 'x' + resY[height] + '.png')
+    picClaim = os.path.join(picLocation + '\\claim_' + resX[width] + 'x' + resY[height] + '.png')
+    
 print(picLocation)
 
 # user brings up the mini llama selection screen
