@@ -1,7 +1,9 @@
 '''
-To exit program early: move mouse to very upper-left of screen (position 0,0)
+To exit program early perform either of the following:
+    1) move mouse to very upper-left of screen (position 0,0)
+    2) press 'ctrl-c' in Python Shell
 
-Must import pyautogui to function correctly
+Program import pyautogui to function correctly
     - https://pyautogui.readthedocs.io/en/latest/install.html
 '''
 
@@ -22,40 +24,49 @@ After a four second delay, the program will begin
 '''
 If running from IDLE:
 
+Remove manual() or auto() function call on the last line of the script
+
 Enter the following line into IDLE (without indent):
     exec(open('pyLlama.py').read())
 
-Then, enter the number of mini llamas to open:
-    manual(10)
+Then, in IDLE enter the number of mini llamas to open:
+    ex: "manual(10)" -or- "auto(4)"
 '''
 
-#TO-DO: set first click position
+#TO-DO: set first click position - wait for click: use for manual()
 # https://pypi.org/project/pynput/ may work
 
 # Enter number of llamas to open if running directly from this script
 llamasToOpen = 10
 
-import pyautogui, sys, os, time
-
-# resolution of user monitor
+# resolutions supported currently
 resX = [2560, 1920, 1280]
 resY = [1440, 1080, 720]
 width = height = None
 
+import pyautogui, sys, os, time
+
 # pics used for image recognition
-picMiniLlama = picMiniLens =  picArrow =  picClaim = None
+picNames = ['miniLlama', 'miniLlamaLens', 'rightArrow', 'claim']
 
 # user chooses number to open or defaults to 10
 def manual(numToOpen=llamasToOpen):
     global llamasToOpen
     llamasToOpen = numToOpen
 
+    # user has 4 seconds to move over right-arrow button
     time.sleep(4)
     
-    # user moves cursor to right arrow (increase llamas), program does the rest
+    # program clicks on right-arrow button
     pos = pyautogui.position()
     increaseLoot(pos)
+
+    # user has 4 seconds to click on "open loot" button
+    time.sleep(4)
+    
+    '''
     hitLlamas()
+    '''
     
 # clicks on right arrow, increasing llamas to open
 def increaseLoot(pos):
@@ -65,55 +76,46 @@ def increaseLoot(pos):
         time.sleep(0.01)
         clicksLeft = clicksLeft - 1
 
+# move to center of screen, hit llama
 def hitLlamas():
-    # set mouse to center of screen
     width, height = pyautogui.size()
     midX = width/2
     midY = height/2
-
-    # move to center of screen, hit llama
+    
     while llamasToOpen > 0:
         pyautogui.moveTo(midX, midY)
-        firstWhack()
+        whackLlama(3) # first whack
         pyautogui.moveTo(midX, midY)
-        secondWhack()        
+        whackLlama(6) # second whack in case llama turns silver  
         llamasToOpen = llamasToOpen - 1
 
-# first of two whacks in case the llama goes silver
-def firstWhack():
+# hits llama, holds left mouse button down for specified time
+def whackLlama(mouseDownTime):
     pyautogui.click()
     time.sleep(0.2)
     pyautogui.mouseDown()
     time.sleep(3)
     pyautogui.mouseUp()
 
-# second Whack and speeds up waiting process
-def secondWhack():
-    pyautogui.click()
-    time.sleep(0.2)
-    pyautogui.mouseDown()
-    time.sleep(6)
-    pyautogui.mouseUp()
-
-# TO-DO: add image recognition, make the whole thing automatic
+# auto image recognition, does everything except laundry
 def auto(numToOpen = llamasToOpen):
-    global llamasToOpen
+    global llamasToOpen, picNames
     llamasToOpen = numToOpen
 
     getResolution()
     setPics()
 
     # move to llama, then lens
-    coords = findPic(picMiniLlama, 0.5)
-    coords = findPic(picMiniLens, 0.5)
+    coords = findPic(picNames[0], 0.5)
+    coords = findPic(picNames[1], 0.5)
     pyautogui.click(coords[0], coords[1])
 
     # find and click on increase arrow
-    coords = findPic(picArrow, 0.5)
+    coords = findPic(picNames[2], 0.5)
     increaseLoot(coords)
 
-    # click on "open" button
-    coords = findPic(picClaim, 0.5)
+    # click on "open loot" button
+    coords = findPic(picNames[3], 0.5)
 
     '''
     pyautogui.click(coords[0], coords[1])
@@ -121,37 +123,44 @@ def auto(numToOpen = llamasToOpen):
     hitLlamas(coords)
     '''
 
+# check if current resolution is supported with available pics
 def getResolution():
     global width, height, resX, resY
+
+    resPos = 0
     
     width, height = pyautogui.size()
 
-    for sizes in resX:
-        if resX[sizes] == width and resY[sizes] == height:
-            width = height = sizes
+    while resPos < len(resX):
+        if resX[resPos] == width and resY[resPos] == height:
+            width = height = resPos
             return
 
     # resolution not found, exit program
     print('Resolution not supported')
     sys.exit()
 
+# sets directory, filename and resolution as strings for pics
 def setPics():
-    global picMiniLlama, picMiniLens, picArrow, picClaim
+    global picNames
     global width, height, resX, resY
 
-    picResolution = str(resX[width]) + 'x' + str(resY[height]) + '.png'
+    picResolution = '_' + str(resX[width]) + 'x' + str(resY[height]) + '.png'
 
     # location of pics, 'pics' folder placed in script parent folder
-    picLocation = os.path.join(os.getcwd() + '\\pics')
+    picLocation = os.path.join(os.getcwd() + '\\pics\\')
 
-    picMiniLlama = os.path.join(picLocation + '\\miniLlama_' + picResolution)
-    picMiniLens = os.path.join(picLocation + '\\miniLlamaLens_' + picResolution)
-    picArrow = os.path.join(picLocation + '\\rightArrow_' + picResolution)
-    picClaim = os.path.join(picLocation + '\\claim_' + picResolution)
-
-# move to pic specified
+    namePos = 0
+    while namePos <len(picNames):
+        picNames[namePos] = os.path.join(picLocation + picNames[namePos] + picResolution)
+        namePos = namePos + 1
+                                      
+# move to pic specified over set time of movement
 def findPic(image, moveTime):
     time.sleep(0.5)
     coords = pyautogui.locateCenterOnScreen(image)
     pyautogui.moveTo(coords[0], coords[1], moveTime)
     return coords
+
+manual(3)
+#auto(3)
