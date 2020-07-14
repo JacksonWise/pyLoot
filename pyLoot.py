@@ -3,7 +3,7 @@ view README file for using programs and installing third-party modules
 '''
 
 import pyautogui, pynput #third-party modules
-import os, time
+import os, sys, time
 from pynput import mouse
 
 resX = resY = 0 # resolution for naming image files
@@ -52,9 +52,13 @@ def setResolution(resXArray, resYArray):
 # find and move to pic specified over set time of movement
 def findPic(image, moveTime):
     time.sleep(0.5)
-    coords = pyautogui.locateCenterOnScreen(image)
-    pyautogui.moveTo(coords[0], coords[1], moveTime)
-    return coords
+    try:
+        coords = pyautogui.locateCenterOnScreen(image)
+        pyautogui.moveTo(coords[0], coords[1], moveTime)
+        return coords
+    except:
+        print('Image not found: %s' %(image))
+        sys.exit()
 
 # sets directory, filename and resolution as strings for pics
 def setPicNames(picNames, resX, resY):
