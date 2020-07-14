@@ -1,166 +1,85 @@
 '''
-To exit program early perform either of the following:
-    1) move mouse to very upper-left of screen (position 0,0)
-    2) press 'ctrl-c' in Python Shell
-
-Program import pyautogui to function correctly
-    - https://pyautogui.readthedocs.io/en/latest/install.html
-'''
-
-'''
 To use program:
 
-Open mini llama number selection (the magnifying glass after hovering over llama)
+on line 27, set llamasToOpen to the desired number of mini llamas to open
 
-Run pyLlama.py
+within the game:
+    1) Navigate to "llama shop" -> "loot"
+    2) Hover mouse over mini llama
+    3) Click on the magnifying glass
 
-Move the mouse cursor over the right arrow (increase llamas to open)
-After a four second delay, the program will begin
+run lootFortnite.py
+    IMPORTANT: the program registers the first two positions you click on.
+    These should be the right arrow (increase llamas) followed by the
+    "claim" button after the program finishes adding the number of
+    boxes to open.
 
-** Mouse must be positioned over the right arrow before program begins **
+click on the right arrow  for program to increase llamas
+    (Wait until program is done increasing the amount of llamas to open)
+
+click on the "claim" button
+
+wait until all that loot rolls in!
 
 '''
 
-'''
-If running from IDLE:
-
-Remove manual() or auto() function call on the last line of the script
-
-Enter the following line into IDLE (without indent):
-    exec(open('pyLlama.py').read())
-
-Then, in IDLE enter the number of mini llamas to open:
-    ex: "manual(10)" -or- "auto(4)"
-'''
-
-#TO-DO: set first click position - wait for click: use for manual()
-# https://pypi.org/project/pynput/ may work
-
-# Enter number of llamas to open if running directly from this script
+# enter number of llamas to open
 llamasToOpen = 10
 
-# resolutions supported currently
-resX = [2560, 1920, 1280]
-resY = [1440, 1080, 720]
-width = height = None
+# enter time between clicks on right arrow to increase llamas
+increaseLootDelay = 0.1
 
-import pyautogui, sys, os, time
+import pyautogui #third-party module
+import time
+import pyLoot
+from pynput import mouse
 
-# pics used for image recognition
-picNames = ['miniLlama', 'miniLlamaLens', 'rightArrow', 'claim']
+# main
+def manual():
+    global llamasToOpen, increaseLootDelay
 
-# user chooses number to open or defaults to 10
-def manual(numToOpen=llamasToOpen):
-    global llamasToOpen
-    llamasToOpen = numToOpen
+    # wait for first user click on right arrow
+    pyLoot.checkClick()
 
-    # user has 4 seconds to move over right-arrow button
-    time.sleep(4)
-    
-    # program clicks on right-arrow button
-    pos = pyautogui.position()
-    increaseLoot(pos)
+    # program continually clicks on right-arrow button
+    width, height = pyautogui.position()
+    pyLoot.setCoords(width, height)
 
-    # user has 4 seconds to click on "open loot" button
-    time.sleep(4)
-    
-    '''
-    hitLlamas()
-    '''
-    
-# clicks on right arrow, increasing llamas to open
-def increaseLoot(pos):
-    clicksLeft = llamasToOpen
-    while clicksLeft > 0:
-        pyautogui.click()
-        time.sleep(0.01)
-        clicksLeft = clicksLeft - 1
+    # first user click sets on-screen llamas to 2, reduce from total
+    llamasToOpen = llamasToOpen - 2 
+    pyLoot.increaseLoot(llamasToOpen, increaseLootDelay)
+
+    # wait for second click on claim button
+    pyLoot.checkClick()
+
+    # wait for first llama to appear, then bring in the loot
+    time.sleep(2)
+    #hitLlamas()
 
 # move to center of screen, hit llama
 def hitLlamas():
+    global llamasToOpen
+
+    # default to clicking on center of screen
     width, height = pyautogui.size()
     midX = width/2
     midY = height/2
-    
+
+    # keep hitting those llamas
     while llamasToOpen > 0:
         pyautogui.moveTo(midX, midY)
         whackLlama(3) # first whack
         pyautogui.moveTo(midX, midY)
         whackLlama(6) # second whack in case llama turns silver  
         llamasToOpen = llamasToOpen - 1
+        time.sleep(2) # wait for next llama to appear
 
 # hits llama, holds left mouse button down for specified time
 def whackLlama(mouseDownTime):
     pyautogui.click()
-    time.sleep(0.2)
+    time.sleep(0.1)
     pyautogui.mouseDown()
-    time.sleep(3)
+    time.sleep(mouseDownTime)
     pyautogui.mouseUp()
 
-# auto image recognition, does everything except laundry
-def auto(numToOpen = llamasToOpen):
-    global llamasToOpen, picNames
-    llamasToOpen = numToOpen
-
-    getResolution()
-    setPics()
-
-    # move to llama, then lens
-    coords = findPic(picNames[0], 0.5)
-    coords = findPic(picNames[1], 0.5)
-    pyautogui.click(coords[0], coords[1])
-
-    # find and click on increase arrow
-    coords = findPic(picNames[2], 0.5)
-    increaseLoot(coords)
-
-    # click on "open loot" button
-    coords = findPic(picNames[3], 0.5)
-
-    '''
-    pyautogui.click(coords[0], coords[1])
-
-    hitLlamas(coords)
-    '''
-
-# check if current resolution is supported with available pics
-def getResolution():
-    global width, height, resX, resY
-
-    resPos = 0
-    
-    width, height = pyautogui.size()
-
-    while resPos < len(resX):
-        if resX[resPos] == width and resY[resPos] == height:
-            width = height = resPos
-            return
-
-    # resolution not found, exit program
-    print('Resolution not supported')
-    sys.exit()
-
-# sets directory, filename and resolution as strings for pics
-def setPics():
-    global picNames
-    global width, height, resX, resY
-
-    picResolution = '_' + str(resX[width]) + 'x' + str(resY[height]) + '.png'
-
-    # location of pics, 'pics' folder placed in script parent folder
-    picLocation = os.path.join(os.getcwd() + '\\pics\\')
-
-    namePos = 0
-    while namePos <len(picNames):
-        picNames[namePos] = os.path.join(picLocation + picNames[namePos] + picResolution)
-        namePos = namePos + 1
-                                      
-# move to pic specified over set time of movement
-def findPic(image, moveTime):
-    time.sleep(0.5)
-    coords = pyautogui.locateCenterOnScreen(image)
-    pyautogui.moveTo(coords[0], coords[1], moveTime)
-    return coords
-
-manual(3)
-#auto(3)
+manual()
