@@ -24,7 +24,7 @@ wait until all that loot rolls in!
 '''
 
 # enter number of llamas to open
-llamasToOpen = 2
+llamasToOpen = 10
 
 # enter time between clicks on right arrow to increase llamas
 increaseLootDelay = 0.1
@@ -41,51 +41,36 @@ from pynput import mouse
 # main
 def manual():
     global llamasToOpen, increaseLootDelay, delayAfterOpening
-    numToOpen = llamasToOpen
 
-    # wait for first user click on right arrow
-    pyLoot.checkClick()
-
-    # program continually clicks on right-arrow button
-    width, height = pyautogui.position()
-    pyLoot.setCoords(width, height)
-
-    # first user click sets on-screen llamas to 2, reduce from total
-    numToOpen = numToOpen - 2
-    pyLoot.increaseLoot(numToOpen, increaseLootDelay)
-
-    # wait for second click on claim button
-    pyLoot.checkClick()
-
-    # wait for first llama to appear, then bring in the loot
-    time.sleep(delayAfterOpening)
+    increaseLoot(llamasToOpen)
+    claimLoot(delayAfterOpening)
     hitLlamas()
 
-# move to center of screen, hit llama
+# delay before first llama appears after clicking on "claim" button
+def claimLoot(delayAfterOpening):
+    print('Click on "CLAIM" button')
+    pyLoot.checkClick()
+    time.sleep(delayAfterOpening)
+
+# move to center of screen, hit llamas until finished
 def hitLlamas():
     global llamasToOpen, firstWhackHold, secondWhackHold, delayAfterOpening
 
     # default to clicking on center of screen
-    width, height = pyautogui.size()
-    midX = width/2
-    midY = height/2
+    pyLoot.centerCoords()
 
-    # keep hitting those llamas
-    while llamasToOpen > 0:
-        pyautogui.moveTo(midX, midY)
-        whackLlama(firstWhackHold) # first whack
-        pyautogui.moveTo(midX, midY)
-        whackLlama(secondWhackHold) # second whack in case llama turns silver  
-        llamasToOpen = llamasToOpen - 1
-        time.sleep(delayAfterOpening) # wait for next llama to appear
+    pyLoot.clickWaitHoldDouble(firstWhackHold, secondWhackHold,
+                               delayAfterOpening, llamasToOpen)
+    
+# clicks on right arrow set number of times
+def increaseLoot(numToOpen):
+    print('Click on right arrow next to "CLAIM" button')
 
-# hits llama, holds left mouse button down for specified time
-def whackLlama(mouseDownTime):
-    time.sleep(0.1)
-    pyautogui.click()
-    time.sleep(0.1)
-    pyautogui.mouseDown()
-    time.sleep(mouseDownTime)
-    pyautogui.mouseUp()
+    # wait for first user click on right arrow
+    pyLoot.checkClick()
 
+    # first user click sets on-screen llamas to 2, reduce from total
+    numToOpen = numToOpen - 2
+    pyLoot.clickMultiple(numToOpen, increaseLootDelay)
+    
 manual()

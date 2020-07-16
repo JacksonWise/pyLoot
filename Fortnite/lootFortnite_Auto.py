@@ -16,7 +16,7 @@ enjoy your goodies!
 '''
 
 # Enter number of llamas to open
-llamasToOpen = 2
+llamasToOpen = 10
 
 # enter time between clicks on right arrow to increase llamas
 increaseLootDelay = 0.1
@@ -31,67 +31,63 @@ import pyLoot
 # pics used for image recognition
 picNames = ['miniLlama', 'miniLlamaLens', 'rightArrow', 'claim']
 
-firstWhackHold = 3 # hold left button down
+firstWhackHold = 4 # hold left button down
 secondWhackHold = 9 # hold again in case of silver llama
 delayAfterOpening = 3 # wait for next llama to appear
 
-# auto image recognition, does everything except laundry
+# main
 def auto():
     global llamasToOpen, increaseLootDelay, picNames, delayAfterOpening
-    numToOpen = llamasToOpen - 1
 
-    # check if resolution used is currently supported
-    width, height = pyautogui.size()
-    pyLoot.setResolution(resX, resY)
+    setPics()
+    findLlama()
+    increaseLoot(llamasToOpen)
+    claimLoot(delayAfterOpening) 
 
-    # set pic names with current resolution
-    picNames = pyLoot.setPicNames(picNames, width, height)
+# move to and click on "claim" button
+def claimLoot(delayAfterOpening):
+    global picNames
+    
+    coords = pyLoot.findPic(picNames[3], 0.5)
+    pyautogui.click(coords[0], coords[1])
 
-    # move to llama, then lens
+    time.sleep(delayAfterOpening)
+    hitLlamas() # bring in that sweet loot
+    
+# move to mini llama, then click on magnigying lens
+def findLlama():
+    global picNames
+    
     coords = pyLoot.findPic(picNames[0], 0.5)
     coords = pyLoot.findPic(picNames[1], 0.5)
     pyautogui.click(coords[0], coords[1])
-
-    # move to and click on right arrow
-    coords = pyLoot.findPic(picNames[2], 0.5)
     
-    pyLoot.setCoords(coords[0], coords[1])
-    pyLoot.increaseLoot(numToOpen, increaseLootDelay)
-    
-    # move to and click on "claim" button
-    coords = pyLoot.findPic(picNames[3], 0.5)
-
-    # bring in the loot
-    pyautogui.click(coords[0], coords[1])
-    
-    time.sleep(delayAfterOpening)
-    hitLlamas()
-
 # move to center of screen, hit llama
 def hitLlamas():
     global llamasToOpen, firstWhackHold, secondWhackHold, delayAfterOpening
 
     # default to clicking on center of screen
-    width, height = pyautogui.size()
-    midX = width/2
-    midY = height/2
+    pyLoot.centerCoords()
 
-    # keep hitting those llamas
-    while llamasToOpen > 0:
-        pyautogui.moveTo(midX, midY)
-        whackLlama(firstWhackHold) # first whack
-        pyautogui.moveTo(midX, midY)
-        whackLlama(secondWhackHold) # second whack in case llama turns silver  
-        llamasToOpen = llamasToOpen - 1
-        time.sleep(delayAfterOpening) # wait for next llama to appear
+    pyLoot.clickWaitHoldDouble(firstWhackHold, secondWhackHold,
+                               delayAfterOpening, llamasToOpen)
 
-# hits llama, holds left mouse button down for specified time
-def whackLlama(mouseDownTime):
-    time.sleep(0.1)
-    pyautogui.click()
-    time.sleep(0.1)
-    pyautogui.mouseDown()
-    time.sleep(mouseDownTime)
-    pyautogui.mouseUp()
+# move to and continually click on right arrow
+def increaseLoot(numToOpen):
+    global picNames, increaseLootDelay
 
+    # "claim" button starts at 1
+    numToOpen = numToOpen - 1
+    
+    coords = pyLoot.findPic(picNames[2], 0.5)
+    pyLoot.setCoords(coords[0], coords[1])
+    pyLoot.clickMultiple(numToOpen, increaseLootDelay)
+
+# check if resolution used is currently supported, set pic names
+def setPics():
+    global picNames
+    
+    pyLoot.setResolution(resX, resY)
+    picNames = pyLoot.setPicNames(picNames)
+    
 auto()
