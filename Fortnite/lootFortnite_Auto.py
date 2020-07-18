@@ -22,8 +22,8 @@ llamasToOpen = 10
 increaseLootDelay = 0.1
 
 # resolutions currently supported
-resX = [2560]
-resY = [1440]
+resX = [1280, 1920, 2560]
+resY = [1280, 1920, 1440]
 
 import pyautogui, time
 import pyLoot
