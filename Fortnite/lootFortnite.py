@@ -1,25 +1,25 @@
 '''
 To use program:
 
-on line 27, set llamasToOpen to the desired number of mini llamas to open
+1) on line 27, set llamasToOpen to the desired number of mini llamas to open
 
-within the game:
+2) within the game:
     1) Navigate to "llama shop" -> "loot"
     2) Hover mouse over mini llama
     3) Click on the magnifying glass
 
-run lootFortnite.py
+3) run lootFortnite.py
     IMPORTANT: the program registers the first two positions you click on.
     These should be the right arrow (increase llamas) followed by the
     "claim" button after the program finishes adding the number of
     boxes to open.
 
-click on the right arrow  for program to increase llamas
+4) click on the right arrow  for program to increase llamas
     (Wait until program is done increasing the amount of llamas to open)
 
-click on the "claim" button
+5) click on the "claim" button
 
-wait until all that loot rolls in!
+6) wait until all that loot rolls in!
 
 '''
 
@@ -64,15 +64,17 @@ def hitLlamas():
     
 # clicks on right arrow set number of times
 def increaseLoot(numToOpen):
-    print('Click on right arrow next to "CLAIM" button')
-    print('Wait for program to increase loot amount')
-    print('Finally, click on "CLAIM" button')
-
     # wait for first user click on right arrow
     pyLoot.checkClick()
 
     # first user click sets on-screen llamas to 2, reduce from total
     numToOpen = numToOpen - 2
     pyLoot.clickMultiple(numToOpen, increaseLootDelay)
-    
+
+# program directions for user
+def printDirections():
+    print('Click on right arrow next to "CLAIM" button')
+    print('Wait for program to increase loot amount')
+    print('Finally, click on "CLAIM" button')
+
 manual()
