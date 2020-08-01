@@ -29,9 +29,10 @@ llamasToOpen = 10
 # enter time between clicks on right arrow to increase llamas
 increaseLootDelay = 0.1
 
-firstWhackHold = 3 # hold left button down
-secondWhackHold = 9 # hold again in case of silver llama
-delayAfterOpening = 3 # wait for next llama to appear
+firstWhackHold = 4 # hold left button down
+secondWhackHold = 11 # hold again in case of silver llama
+delayAfterOpening = 1 # wait for next llama to appear
+firstLlamaWait = 5 # Wait time after clicking on "claim" button
 
 import pyautogui #third-party module
 import time
@@ -43,14 +44,13 @@ def manual():
     global llamasToOpen, increaseLootDelay, delayAfterOpening
 
     increaseLoot(llamasToOpen)
-    claimLoot(delayAfterOpening)
+    claimLoot(firstLlamaWait)
     hitLlamas()
 
 # delay before first llama appears after clicking on "claim" button
-def claimLoot(delayAfterOpening):
-    print('Click on "CLAIM" button')
+def claimLoot(firstLlamaWait):
     pyLoot.checkClick()
-    time.sleep(delayAfterOpening)
+    time.sleep(firstLlamaWait)
 
 # move to center of screen, hit llamas until finished
 def hitLlamas():
@@ -65,6 +65,8 @@ def hitLlamas():
 # clicks on right arrow set number of times
 def increaseLoot(numToOpen):
     print('Click on right arrow next to "CLAIM" button')
+    print('Wait for program to increase loot amount')
+    print('Finally, click on "CLAIM" button')
 
     # wait for first user click on right arrow
     pyLoot.checkClick()
